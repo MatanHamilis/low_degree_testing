@@ -1,0 +1,49 @@
+\usepackage[]{amsfonts}
+\usepackage[]{amssymb}
+\usepackage[]{amsmath}
+\usepackage[]{xspace}
+\usepackage{xcolor}
+\usepackage{hyperref}
+%
+% Todo list
+\usepackage[colorinlistoftodos,prependcaption,textsize=tiny]{todonotes}
+\newcommand{\unsure}[1]{\todo[linecolor=red,backgroundcolor=red!25,bordercolor=red]{#1}}
+\newcommand{\change}[1]{\todo[linecolor=blue,backgroundcolor=blue!25,bordercolor=blue]{#1}}
+\newcommand{\info}[2][1=]{\todo[linecolor=OliveGreen,backgroundcolor=OliveGreen!25,bordercolor=OliveGreen,#1]{#2}}
+\newcommand{\improvement}[2][1=]{\todo[linecolor=Plum,backgroundcolor=Plum!25,bordercolor=Plum,#1]{#2}}
+%\newcommand{\thiswillnotshow}[2][1=]{\todo[disable,#1]{#2}}
+%
+\newcommand{\of}[1]{\ensuremath{{\left(#1\right)}}}
+\newcommand{\callig}[1]{\ensuremath{\mathcal{#1}}}
+\newcommand{\assign}{\ensuremath{\leftarrow}}
+\newcommand{\pr}[1]{\ensuremath{\text{\bf Pr}\brackets{#1}}}
+\newcommand{\expectation}[1]{\ensuremath{\mathbb{E}\of{#1}}}
+\newcommand{\variance}[1]{\ensuremath{\mathbb{V}\of{#1}}}
+
+\newcommand{\tuple}[1]{\ensuremath{{\left(#1\right)}}}
+\newcommand{\braces}[1]{\ensuremath{{\left( #1 \right)}}}
+\newcommand{\cbraces}[1]{\ensuremath{{\left\{#1 \right\}}}}
+\newcommand{\brackets}[1]{\ensuremath{{\left[ #1 \right]}}}
+\newcommand{\floor}[1]{\ensuremath{{\left\lfloor #1 \right\rfloor}}}
+\newcommand{\ceil}[1]{\ensuremath{{\left\lceil #1 \right\rceil}}}
+
+\newcommand{\bigo}[1]{\ensuremath{\mathcal{O}\of{#1}}}
+\newcommand{\bigomega}[1]{\ensuremath{\Omega\of{#1}}}
+
+\newcommand{\ZerOne}{\ensuremath{\{0,1\}}}
+\newcommand{\ZeroOneToThe}[1]{\ensuremath{\{0,1\}^{#1}}}
+
+\newcommand{\ToDo}[1]{{\textcolor{red}{\textbf{TODO:} #1}}}
+
+\newtheorem{proposition}{Proposition}
+%\newtheorem{theorem}{Theorem}
+%\newtheorem{lemma}{Lemma}
+\newtheorem{claim}{Claim}
+%\newtheorem{definition}{Definition}
+
+\newcommand{\complexityclass}[1]{\callig{#1}}
+\newcommand{\NPclass}{\complexityclass{NP}}
+\newcommand{\Pclass}{\complexityclass{P}}
+
+\newcommand{\fcal}{\callig{F}}
+\newcommand{\pcal}{\callig{P}}

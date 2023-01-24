@@ -1,0 +1,986 @@
+\documentclass[professionalfonts,11pt, aspectratio=169]{beamer}
+%Information to be included in the title page:
+\input{preamble.tex}
+\usepackage{svg}
+\usepackage{tikz}
+
+\usetheme{Frankfurt}
+\definecolor{mygreen}{rgb}{.20,.20,.4}
+\usecolortheme[named=mygreen]{structure}
+%\usecolortheme{default}
+% \setbeamertemplate{footline}[page number]{}
+\setbeamertemplate{navigation symbols}{}
+\setbeamercovered{transparent}
+\usefonttheme[onlylarge]{structuresmallcapsserif}
+
+\newcommand{\poly}[2]{\ensuremath{\callig{P}_{#1,#2}}}
+\newcommand{\abs}[1]{\ensuremath{\left| #1 \right|}}
+\newcommand{\ppr}[2]{\ensuremath{{\textbf{Pr}_{#1}\brackets{#2}}}}
+\newcommand{\mfo}{\ensuremath{{\texttt{MFO}}}\xspace}
+
+\AtBeginEnvironment{theorem}{%
+  \setbeamercolor{block title}{bg=red!70!black}
+}
+\AtBeginEnvironment{proof}{%
+  \setbeamercolor{block title}{bg=purple!70!black}
+}
+\AtBeginEnvironment{definition}{%
+  \setbeamercolor{block title}{bg=gray!70!black}
+}
+
+\newtheorem{observation}{Observation}
+\newenvironment<>{examplesecond}[1][]{%
+  \setbeamercolor{block title observation}{fg=white,bg=blue!75!black}%
+  \begin{observation}#2[#1]}{\end{observation}}
+
+
+
+\title{Low Degree Testing}
+\subtitle{Seminar in Sublinear Algorithms}
+\author[Matan Hamilis]{Matan Hamilis \\ \texttt{matan.hamilis@gmail.com}}
+\institute{Reichman University}
+%\date{\today}
+% \logo{\includesvg[height=1cm]{Reichman_University.svg}}
+
+\begin{document}
+
+\frame{\titlepage}
+\begin{frame}[c]
+\frametitle{The Plan}
+\tableofcontents[pausesections]
+\end{frame}
+
+%%%%%
+%%%%%
+%%%%%
+%%%%%
+
+\section{Introduction}
+
+\subsection{Basic Terminology}
+\begin{frame}
+    \frametitle{Notation}
+    \begin{itemize}
+        \item \callig{F} denotes some field.
+        \item A variable is denoted by a lowercase letter from the end of the alphabet (e.g \(x,y,z\)).
+        \item A constant  is denoted by a lowercase letter from the beginning of the alphabet (e.g \(a,b,c\)).
+        \item A vector is an overlined lowercase latin letter (e.g \(\bar{a},\bar{x}\)).
+        \item \(\bar{x}_i\) is the \(i^{\text{th}}\) coordinate of \(\bar{x}\).
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Univariate Monomials}
+    \begin{definition}[Monomial]
+        Let \(x\) be a variable, and \(a\) be a non-zero constant and \(d\in \mathbb{N}\).
+        The term \(ax^d\) is called a \alert<1>{degree \(d\) (univariate) monomial}.
+    \end{definition}
+    \pause{}
+    \begin{itemize}[<+->]
+        \item When the degree is implicit in the context, we use the term ``monomial'' without mentioning the degree.
+        \item \(a\) is also called \alert<3->{coefficient}.
+    \end{itemize}
+\end{frame}
+
+% \begin{frame}
+%     \frametitle{Polynomials}
+%     \begin{definition}[Univariate Polynomial]
+%         Let \(f:\callig{F}\to \callig{F}\) be a non-zero function. 
+%         We say \(f\) is a \alert<1->{univariate polynomial of degree \(d\)} if there exist \(a_0,a_1,\ldots,a_d\) such that \(a_d\neq 0\) and
+%         \[
+%             \forall x \in \callig{F}: f\of{x} = \sum_{i=0}^d a_i x^i
+%         \]
+%     \end{definition}
+%     \pause{}
+%     \begin{itemize}
+%         \item \(a_0,\ldots a_d\) are also called the \alert<2>{coefficients} of the polynomial.
+%     \end{itemize}
+% \end{frame}
+\begin{frame}
+    \frametitle{Polynomials}
+    \begin{definition}[Univariate Polynomial (Alt.)]
+        Let \(f:\callig{F}\to \callig{F}\) be a non-zero function. 
+        We say \(f\) is a \alert<1->{univariate polynomial of degree \(d\)} if it can be expressed as the non-empty sum of monomials of degree at most \(d\).
+    \end{definition}
+    \pause{}
+    \begin{itemize}
+        \item Note: We define the zero polynomial to be of degree \(\infty\), so we shall disregard it in this talk.
+    \end{itemize}
+\end{frame}
+\begin{frame}
+    \frametitle{Multivariate Monomials}
+    \begin{definition}[Monomials]
+        Let \(a\) be a non-zero constant, \(x_1,\ldots, x_m\) be \(m\) variables over \(\fcal\) and let \(d_1,\ldots,d_m\in \mathbb{N}\).
+        Also let \(d = \sum_i d_i\).
+        The product \(a x_1^{d_1}\dotsm x_m^{d_m}\) is called a \alert<1>{total degree \(d\) multivariate monomial}.
+    \end{definition}
+    \pause{}
+    \begin{itemize}
+        \item We also call \(d_i\) the \alert<2>{degree of variable} \(x_i\) in the monomial.
+    \end{itemize}
+    \pause{}
+    \begin{example}
+        \begin{itemize}
+            \item \(x_1x_2\) of total degree 2.
+            \item \(x_1^3\) of total degree 3.
+            \item \(10\) of total degree 0.
+        \end{itemize}
+    \end{example}
+\end{frame}
+\begin{frame}
+    \frametitle{Multivariate Polynomials}
+    \begin{definition}[(Multivariate) Polynomial]
+        Let \(m\in \mathbb{N}\) and let \(f:\callig{F}^m\to \callig{F}\) be a non-zero function. 
+        We say \(f\) is a \alert<1->{multivariate polynomial of degree \(d\)} if it can be expressed as a non-empty sum of multivariate monomials of total degree \(\leq d\).
+    \end{definition}
+    \pause{}
+        \begin{example}
+         \(f\of{x_1,x_2}=3x_1 + 2x_2^2x_1 + x_2x_1\) is a multivariate polynomial of total degree 3.
+        \end{example}
+\end{frame}
+
+\subsection{Motivation}
+\begin{frame}
+    \frametitle{Motivation}
+    \begin{itemize}[<+->]
+        \item Let \(f:\callig{F}^m \to \callig{F}\) and \(d\in \mathbb{N}\).
+        \item Natural Question: Is \(f\) a degree \(\leq d\) polynomial?
+        \item Observation: We tackled a weaker form of this problem before. (Where?)
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Linear Functions are Polynomials}
+    \begin{itemize}[<+->]
+        \item Linear functions are degree-1 polynomials.
+        \item Following the BLR theorem, we have built a tester for \alert<2>{linearity}.
+        \item A natural extension of linearity testing is \alert<3>{low degree} testing.
+        \item Today: Low degree tester for both univariate and multivariate polynomials.
+    \end{itemize}
+\end{frame}
+
+\section{Background}
+\subsection{Polynomials}
+\begin{frame}
+    \frametitle{Notation}
+    \begin{itemize}[<+->]
+        \item \(\pcal_{d}\) is the set of univariate polynomials of degree \(\leq d\).
+        \item \poly{m}{d} is the set of \(m\)-variate polynomials of degree \(\leq d\).
+        \item \(d\) denotes the degree of some polynomial, \(d \leq \frac{\abs{\callig{F}}}{2}\).
+        \item \(f:\callig{F}^m \rightarrow \callig{F}\) an \(m\)-variate function.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Basic Properties}
+    Let \(f,g\) be two polynomials of degrees \(d_f,d_g\) respetively.
+    \pause{}
+    \begin{itemize}[<+->]
+        \item The function \(h=f+g\) is a polynomial of degree \(\leq \max\cbraces{d_f,d_g}\)
+        \item The function \(h=f\cdot g\) is a polynomial of degree \(d_f+d_g\)
+    \end{itemize}
+    
+
+\end{frame}
+\begin{frame}
+    \frametitle{All Functions Are Polynomials}
+
+    \begin{lemma}
+        The function \(\pi_0:\callig{F}\rightarrow \callig{F}\):
+        \[
+                \pi_0\of{x}    =
+            \begin{cases}
+                1 & x=0 \\
+                0 & \text{otherwise}
+            \end{cases}
+        \]
+        is a polynomial of degree at most \(\leq \abs{F}-1\)
+    \end{lemma}
+\end{frame}
+
+\begin{frame}
+    \frametitle{All Functions Are Polynomials}
+    \begin{proof}
+        \[\pi_0\of{x}=\overbrace{\prod_{a\in \callig{F} \backslash \cbraces{0}}\frac{a-x}{a}}^{\text{\(\abs{\callig{F}}-1\) polys of deg 1}}\]
+    \end{proof} 
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{All Functions Are Polynomials}
+    \begin{lemma}
+        For all \(a\in \callig{F}\) the function \(\pi_a:\callig{F}\rightarrow \callig{F}\):
+        \[
+                \pi_a\of{x}    =
+            \begin{cases}
+                1 & x=a \\
+                0 & \text{otherwise}
+            \end{cases}
+        \]
+        is a polynomial of degree at most \(\leq \abs{F}-1\)
+    \end{lemma}
+\end{frame}
+
+\begin{frame}
+    \frametitle{All Functions Are Polynomials}
+    \begin{proof}
+        \[\pi_a\of{x}=\pi_0\of{x-a}\]
+    \end{proof} 
+\end{frame}
+
+\begin{frame}
+    \frametitle{All Functions Are Polynomials}
+
+    \begin{theorem}
+        All univariate functions \(f:\callig{F} \rightarrow \callig{F}\) can be written as polynomials of degree at most \(\abs{\callig{F}}-1\)
+    \end{theorem}
+    \pause{}
+    \begin{proof}
+        \[
+            f\of{x} = \sum_{a\in \callig{F}} f\of{a}\cdot \pi_a\of{x}
+        \]
+    \end{proof}
+\end{frame}
+
+\begin{frame}
+    \frametitle{All Functions Are Polynomials}
+
+    \begin{theorem}
+        All multivariate functions \(f:\callig{F}^m \rightarrow \callig{F}\) can be written as polynomials of degree at most \(m\cdot \braces{\abs{\callig{F}}-1}\)
+    \end{theorem}
+    \pause{}
+    \begin{proof}
+        \begin{itemize}
+            \item By induction on \(m\). For \(m=1\) we're done.\\
+        \pause{}
+        \item Assuming the claim holds for \(m-1\) we prove for \(m\):
+        \[
+            f\of{x_1,\ldots,x_{m-1},x_m} = \sum_{a\in \callig{F}} \overbrace{f\of{x_1,\ldots,x_{m-1},a}}^{\text{deg} \leq \braces{m-1}\cdot  \braces{\abs{\callig{F}}-1}}\cdot \pi_a\of{x}
+        \]
+        \end{itemize}
+    \end{proof}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Low Degree Polynomials}
+    \begin{observation}
+        \(\frac{\abs{\callig{F}}-1}{\abs{\callig{F}}}\)-fraction of the functions are of maximal degree.
+    \end{observation}
+    \pause{}
+    \begin{observation}
+        Only \(\frac{1}{\abs{\callig{F}}^{\abs{\callig{F}}-1-d}}\)  fraction of the univariate functions are of degree \(\leq d\).
+    \end{observation}
+    \pause{}
+    \begin{definition}[low degree polynomial]
+        A function \(f\) is a \alert<1>{low degree polynomial} if it is of degree \(\leq d\).
+    \end{definition}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Interpolation}
+    \begin{itemize}[<+->]
+        \item Let \(f \in \callig{P}_d\) be a univariate polynomial of degree \(\leq d\).
+        \item Question: Given evaluations of \(f\), can we reconstruct \(f\)'s coefficients?
+        \item Question: How many such evaluations do we need?
+    \end{itemize}
+    \uncover<4->{
+    \begin{theorem}[Interpolation]
+        Let \(f\in \callig{P}_d\) be a univariate polynomial of degree \(\leq d\), then any \(d+1\) samples of \(f\) suffice to reconstruct the \(d+1\) coefficients of \(f\).
+    \end{theorem}
+    }
+\end{frame}
+\begin{frame}
+    \frametitle{Interpolation}
+
+    \begin{proof}
+        Assume we have \(f\of{x_0}\ldots f\of{x_{d}}\) for some distinct set of points \(x_0\ldots x_{d}\) then we can obtain \(f\)'s coefficients \(a_0,\ldots,a_d\) by solving the following linear equation:
+\[
+    \begin{pmatrix}
+        x_0^0 & x_0^1 & \dotsb & x_0^d \\
+        x_1^0 & x_1^1 & \dotsb & x_1^d \\
+        \vdots & \vdots & \ddots & \vdots \\
+        x_d^0 & x_d^1 & \dotsb & x_d^d \\
+    \end{pmatrix}
+        \begin{pmatrix}
+            a_0 \\
+            a_1 \\
+            \vdots \\
+            a_d
+        \end{pmatrix}
+        =
+        \begin{pmatrix}
+            f\of{x_0} \\
+            f\of{x_1} \\
+            \vdots \\
+            f\of{x_d} \\
+        \end{pmatrix}
+\]
+    \end{proof}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Roots of a Univariate Polynomials}
+    \only<1-2>{
+    \begin{definition}
+        Let \(f:\fcal^m \to \fcal \in \pcal_{m,d}\) be a univariate polynomial.
+        We say a point \(x \in \fcal^m\) is a \alert{root} of \(f\) if \(f\of{x}=0\).
+    \end{definition}
+    }
+    \pause{}
+    \begin{lemma}
+        A \alert{univariate} polynomial \(f\in \pcal_d\) has a most \(d\) roots.
+    \end{lemma}
+    \pause{}
+    \only<3->{
+    \begin{proof}
+        \begin{itemize}[<+->]
+            \item Assume \(f\) has \(d+1\) roots, \(x_0,\ldots,x_d\).
+            \item Using the linear equation systems we obtain its coefficients:
+\[
+    \begin{pmatrix}
+        x_0^0 & x_0^1 & \dotsb & x_0^d \\
+        \vdots & \vdots & \ddots & \vdots \\
+        x_d^0 & x_d^1 & \dotsb & x_d^d \\
+    \end{pmatrix}
+        \begin{pmatrix}
+            a_0 \\
+            \vdots \\
+            a_d
+        \end{pmatrix}
+        =
+        \begin{pmatrix}
+            0 \\
+            \vdots \\
+            0 \\
+        \end{pmatrix}
+        =
+        \begin{pmatrix}
+            f\of{x_0} \\
+            \vdots \\
+            f\of{x_d} \\
+        \end{pmatrix}
+\]
+\item The only solution is \(\bar{0}\), since the matrix is ``Vandermonde'' so it's invertible.
+\item Therefore \(f\not \in \pcal_d\) since it's the zero-polynomial, contradiction!
+        \end{itemize}
+
+    \end{proof}
+    }
+
+    
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{Schwartz-Zippel Lemma}
+    \begin{itemize}[<+->]
+        \item What about number of roots of multivariate polynomial?
+        \item The following is given without a proof.
+    \begin{theorem}
+        Let \(p:\fcal^m \to \fcal\) be a non-zero \(m\)-variate polynomial of total degree \(d\) over finite field \(\fcal\). Then,
+        \[
+            \ppr{x\in \fcal^m}{p\of{x}=0} \leq \frac{d}{\abs{\fcal}}
+        \]
+    \end{theorem}
+    \end{itemize}
+
+
+    
+
+\end{frame}
+\begin{frame}
+    \frametitle{Intermission}
+    \begin{itemize}[<+->]
+        \item Reminder: Our goal is to build a tester for the property of a function being a low-degree polynomial.
+        \item To give some intuition we shall begin with describing a tester for univariate polynomials.
+        \item Next, we will present the full multivariate tester.
+    \end{itemize}
+\end{frame}
+\begin{frame}
+    \frametitle{Property Testing --- Notation}
+    \begin{itemize}[<+->]
+        \item Since we present a tester in this talk, we remind a few useful notations.
+        \item For functions \(f,f':\fcal^m \to \fcal\) the (normalized) \alert{distance} between \(f,f'\) is defined:
+        \[
+            \delta\of{f,f'}= \frac{\abs{\cbraces{x:f\of{x}\neq f'\of{x}}}}{\abs{\fcal}^m}
+        \]
+        \item For property \(\Pi{}\) the \alert{distance} of a function \(f\) from \(\Pi{}\) is defined:
+        \[
+            \Delta_{\Pi}\of{f} = \underset{f'\in \Pi}{\min} \cbraces{\delta\of{f,f'}}
+        \]
+    \end{itemize}
+    
+
+\end{frame}
+\subsection{Intuition}
+\begin{frame}
+    \frametitle{Intuition}
+    \begin{itemize}[<+->]
+        \item For the univariate case consider the following tester:
+        \begin{enumerate}[<+->]
+            \item Samples \(d+2\) points \(x_1,\ldots,x_{d+2}\in\mathcal{F}\)
+            \item Interpolates a degree \(d\) polynomial \(p\) from \(x_1,\ldots,x_{d+1}\) and \(f\of{x_1},\ldots,f\of{x_{d+1}}\)
+            \item Checks \(p\of{x_{d+2}}=f\of{x_{d+2}}\)
+        \end{enumerate}
+        \item If \(f\) is low degree, the tester always accepts.
+        \item If \(f\) is not low degree then probability of \(x_{d+2}\) being a point of disagreement between \(f\) and \(p\) is at least:
+        \[
+            \frac{\delta\of{f,p}\cdot \abs{\fcal}}{\abs{\fcal}-\of{d+1}} > \delta\of{f,p} \geq \Delta_{\pcal_d}\of{f} = \epsilon
+        \]
+    \end{itemize}
+\end{frame}
+\begin{frame}
+    \frametitle{Lower Bound?}
+
+    \begin{theorem}
+        No univariate low-degree tester exists which makes less than \(d+2\) queries.
+    \end{theorem}
+    \begin{proof}
+        (sketch, ``Yao's minimax-principle'') \(d+1\) queries convey no information. 
+        That is, given \(d+1\) queries' responses we can show that there exist two functions \(f_1,f_2\) that both agree on the responses of the queries, but \(\deg\of{f_1}\leq d\) and \(\deg\of{f_2}=\abs{\fcal}-1\).
+    \end{proof}
+\end{frame}
+\begin{frame}
+    \frametitle{Lines}
+    \begin{itemize}[<+->]
+    \item It can be a bit difficult generalizing the foregoing tester for multivariate setting.
+    \item We give an alternative tester that will form the basis for the generalized, multivariate tester.
+    \item The alternative tester is based on querying the first \(d+2\) points over a random \alert{line}.
+    \item A \emph{line} is parametrized by two values \(r,s\in\fcal\) and is made of the solutions \(y\)to the linear equation \(y=r+s\cdot x\) for \(x\in\fcal\).
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Alternative Tester}
+    \begin{itemize}[<+->]
+        \item We devise the following tester:
+    \begin{enumerate}[<+->]
+        \item Sample \(r,s \gets \fcal \) uniformly.
+        \item Query the points \(\cbraces{r+s\cdot i}_{i\in\cbraces{0,\ldots,d+1}}\).
+        \item Make sure the \(d+2\) points interpolate into a degree \(d\) polynomial.
+    \end{enumerate}
+    
+    \item Obviously, if \(f\) is low degree, the tester accepts.
+    \item However, if \(f\) is \(\epsilon\)-far from being low degree, how many random lines will fail the test?
+    \item The answer to this question is special case of the following multivariate tester.
+    \item It is also the core result of this talk.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Multivariate Tester}
+
+    \begin{itemize}[<+->]
+        \item In the multivariate setting we are given \(f:\fcal^m \to \fcal\).
+        \item We will apply the line-based approach.
+        \begin{definition}
+            A \emph{line} in \(\fcal^m\) is a (\abs{\fcal} long) sequence of the form \(\of{\bar{x} + i \bar{h}}_{i\in \fcal}\) for some \(\bar{x},\bar{h}\in\fcal^m\).
+        \end{definition}
+        \item It's easy to see that if \(f\) is low degree, then its restriction to any line is a low degree univariate polynomial.
+        \item We'll later see that the opposite direction is also correct, if restriction to all lines is low degree univariate, then \(f\) is low degree.
+    \end{itemize}
+\end{frame}
+\begin{frame}
+    \frametitle{Suggestion (or dead end?)}
+
+    \begin{itemize}[<+->]
+        \item It would be natural to suggest the following multivariate tester:
+        \begin{enumerate}[<+->]
+            \item Select a random line in \(\fcal^m\).
+            \item Test that \(f\) restricted to the line is low degree univariate.
+        \end{enumerate}
+        \item Obviously, if \(f\) is low degree, the tester acceepts.
+        \item But if \(f\) is \(\epsilon\)-far, how many lines will result in a rejection?
+    \end{itemize}
+\end{frame}
+\begin{frame}
+    \frametitle{Intuition - Summary}
+    \begin{itemize}[<+->]
+        \item Spoiler: The multivariate tester is exactly the tester we've just seen.
+        \item We'll have to prove two main theorems.
+        \item First, that in the univariate case, taking to a random line and testing the first \(d+2\) points has good rejection probability.
+        \item Second, in the multivariate when reducing the test to the univariate case via a random line, then with good probability most lines will reject.
+    \end{itemize}
+\end{frame}
+
+\section{Characterizations}
+\begin{frame}
+    \frametitle{Notation}
+    \begin{itemize}
+        \item \(L_{\bar{x},\bar{h}}\overset{\text{def}}{=}\braces{\bar{x}+i\bar{h}}_{i\in\fcal} \), a line parametrized by \(\bar{x},\bar{h}\).
+        \begin{definition}
+            The \alert{restriction of \(f\) to the line \(L_{\bar{x},\bar{h}}\)} is a the polynomial \(p\) such that \(p\of{i}=f\of{\bar{x}+i\bar{h}}\) for every \(i\in\fcal\).
+        \end{definition}
+    \end{itemize}
+    \end{frame}
+    \begin{frame}
+        \frametitle{Local Characterization (Multivariate Polynomials)}
+        \begin{theorem}
+            Let \(\abs{F}>2d\). The function \(f:\fcal^m\to\fcal\) is in \(\pcal_{m,d}\) if and only if for every \(\bar{x},\bar{h} \in \fcal^m\) there exists a degree-\(d\) univariate polynomial \(p_{\bar{x},\bar{h}}\) such that \(p_{\bar{x},\bar{h}}=f\of{\bar{x}+i\bar{h}}\) for every \(i\in\fcal\).
+        \end{theorem}
+    \end{frame}
+
+    \begin{frame}
+        \frametitle{Proof \(\Rightarrow\)}
+   \begin{proof}
+    First direction is simple. For every \(\bar{x}=\of{x_1,\ldots,x_m}\) and \(\bar{h}=\of{h_1,\ldots,h_m}\) we have:
+    \[
+        f\of{\bar{x}+z\bar{h}}=f\of{x_1+zh_1,\ldots,x_m+zh_m}
+    \]
+    is univariate of degree \(d\)  in \(z\).
+   \end{proof} 
+    \end{frame}
+
+    \begin{frame}
+        \frametitle{Proof \(\Leftarrow\)}
+        \begin{proof}
+            The other direction is less trivial, we'll use the induction + probabilistic method.
+            \begin{itemize}[<+->]
+                \item Assume \(\deg\of{f}\leq 2d<\abs{\fcal}\) for now.
+                \item For any all \(\bar{h}\in\fcal\), let \(g_{\bar{h}}\of{z}=f\of{z\bar{h}}\), the restriction of \(f\) to line \(L_{0,\bar{h}}\).
+                \item \(g_{\bar{h}}\) is of degree \(\leq d\).
+                \item The coefficient of \(z^{\deg\of{f}}\) is a (multivariate) polynomial in \(\bar{h}\) of degree \(\def\of{f}\leq 2d\), \(c\of{\bar{h}}\).
+                \item Therefore, from Schwartz-Zippel lemma \(\ppr{\bar{h}\in \fcal^m}{c\of{\bar{h}}\neq0}>1-\frac{\deg\of{f}}{\abs{\fcal}}>0\).
+                \item Since the probability over \(\bar{h}\) is positive, there exists such \(\bar{h}^*\) for which \(d \geq \deg\of{g_{\bar{h}^*}}=\deg\of{f}\).
+            \end{itemize}
+        \end{proof}
+    \end{frame}
+    
+    \begin{frame}
+        \frametitle{Proof \(\Leftarrow\)}
+        \begin{proof}
+        \begin{itemize}
+            \item We now prove that \(\def\of{f}\leq 2d\).
+            \item For each \(e\in\cbraces{0,\ldots,d}\) let \(f_e\of{x_1,\ldots,x_{m-1}}=f\of{x_1,\ldots,x_{m-1},e}\).
+            \item \(f_e\of{\bar{x}}\) is an \(m-1\)-variate polynomial, by induction hypothesis (of the whole theorem), it is of degree \(\leq d\).
+            \item For any \(e\in\cbraces{0,\ldots,d}\), let \(\delta_e\of{x}\) by a degree \(d\) polynomial such that \(\delta_e\of{e}=1\) and \(\delta_e\of{e'}=0\) for \(e'\in\cbraces{0,\ldots,d}\backslash \cbraces{e}\).
+        \end{itemize}
+        \end{proof}
+    \end{frame}
+    \begin{frame}
+        \frametitle{Proof \(\Leftarrow\)}
+        \begin{itemize}[<+->]
+            \item For any \(e_1,\ldots,e_{m-1}\) it holds that:
+             \[
+                f\of{e_1,\ldots,e_{m-1},x} = \sum_{e=0}^{d} \delta_e\of{x}f_e\of{e_1,\ldots,e_{m-1}}
+            \]
+            \item Notice both sides are degree \(d\) polynomials that agree on \(d+1\) points: \(\cbraces{0,\ldots,d}\).
+            \item Since the foregoing equality holds for all \(e_1,\ldots,e_{m-1}\) we conclude:
+             \[
+                f\of{x_1,\ldots,x_{m-1},x_m} = \sum_{e=0}^{d} \overbrace{\delta_e\of{x_m}}^{\deg \leq d}\overbrace{f_e\of{x_1,\ldots,x_{m-1}}}^{\deg \leq d}
+            \]
+        \end{itemize}
+    \end{frame}
+
+    \begin{frame}
+        \frametitle{Conclusions}
+        \begin{itemize}[<+->]
+            \item  We've seen a ``local'' characterization of multivariate polynomial as a conjunction of \(\abs{\fcal}^{2m}\) constraints.
+            \item However, these constraints are still not local, as the multivariate polynomial restricted to any line still refers to \(\abs{F}\) values of the tested function as a univariate polynomial.
+            \item We will now give a local characterization of univariate polynomials as a conjunction of \(\abs{F}^2\) constraints, each referring only to \(d+2\) values of the function.
+        \end{itemize}
+    \end{frame}
+
+
+    \begin{frame}
+        \frametitle{A claim on deriviatives}
+        \begin{itemize}[<+->]
+            \item We start with a claim on \emph{deriviatives}.
+            \begin{definition}
+                For a function \(g:\fcal \to \fcal\), the \alert{deriviative} of \(g\) is the function \(g'\) such that: \(g'\of{x} \overset{\text{def}}{=}g\of{x+1}-g\of{x}\)
+            \end{definition}
+            \begin{theorem}
+                A function \(g\) is of degree exactly \(d>0\) if and only if its deriviate is of degree exactly \(d-1\).
+            \end{theorem}
+        \end{itemize}
+    \end{frame}
+    \begin{frame}
+        \frametitle{Proof about deriviatives}
+        \begin{proof}
+                Write \(g\of{x}=\sum_{j=0}^d c_jx^j\)
+                \[
+                    \begin{aligned}
+                        g'\of{x} &= \sum_{j=0}^{d} c_j\cdot \of{x+1}^j - \sum_{j=0}^{d} c_j \cdot x^j &\\
+                        &= \sum_{j=0}^d c_j \cdot \of{\of{x+1}^j - x^j} &\\
+                        &= \sum_{j=0}^d c_j \cdot \sum_{k=0}^{j-1}{j \choose k} \cdot x^k & \Leftarrow \text{coefficient of } x^{d-1} \text{ is } c_d \cdot d \neq 0
+                    \end{aligned}
+                \]
+        \end{proof}
+    \end{frame}
+
+    \begin{frame}
+        \frametitle{Local Characterization - Univariate Polynomials}
+        \begin{itemize}
+            \item Notation: \(\alpha_i = \of{-1}^{i+1}\cdot {d+1 \choose i}\)
+        \end{itemize}
+        \begin{theorem}
+            A univariate polynomial \(g:\fcal \to \fcal\) has degree \(\leq d<\abs{\fcal}\) if any only if for every \(e\in\fcal\) it holds that:
+            \[
+                \sum_{i=0}^{d+1}\alpha_i\cdot g\of{e+i} =0
+            \]
+        \end{theorem}
+    \end{frame}
+
+    \begin{frame}
+        \frametitle{Proof}
+        \only<1-4>{
+        \begin{proof}
+            \begin{itemize}[<+->]
+                \item By induction on \(d\). If \(d=0\) the function is constant, therefore \(-g\of{e}+g\of{e+1}=0\) for all \(e\in\fcal\).
+                \item For induction step, \(\deg\of{g}=d\) therefore \(\deg\of{g'}=d-1\)
+                \item From induction hypothesis, since \(\deg\of{g'}=d-1\) then \(\sum_{i=0}^d \of{-1}^{i+1}\cdot {d \choose i}\cdot g'\of{e+i}=0\) for all \(e\in\fcal\).
+                \item So we know that \(\deg\of{g}=d\) if and only if 
+                \[
+                    \sum_{i=0}^d \of{-1}^{i+1}\cdot {d \choose i}\cdot \of{g\of{e+i+1}-g\of{e+i}}=0
+                \]
+            \end{itemize}
+        \end{proof}
+        }
+    \only<5->{
+            \(
+                \begin{aligned}
+                    0 &= \sum_{i=0}^d \of{-1}^{i+1}\cdot {d \choose i}\cdot \of{g\of{e+i+1}-g\of{e+i}} \\
+                    &= \sum_{i=0}^{d}\of{-1}^{i+1}\cdot {d\choose i}\cdot g\of{e+i+1} - \sum_{i=0}^{d}\of{-1}^{i+1}\cdot {d \choose i}\cdot g\of{e+i} \\
+                    &= \sum_{j=1}^{d+1}\of{-1}^j \cdot {d \choose j-1 }\cdot g\of{e+j} - \sum_{i=0}^d\of{-1}^{i+1}\cdot {d\choose i}\cdot g\of{e+i} \\
+                    &= g\of{e} + \of{-1}^{d+1}\cdot g\of{e+d+1}+\sum_{i=1}^{d}\of{-1}^{i}\cdot\of{{d \choose i-1}+ {d\choose i}}\cdot g\of{e+i} \\
+                    &= -\sum_{i=0}^{d+1}\of{-1}^{i+1}{d+1 \choose i}\cdot g\of{e+i} \quad \square
+                \end{aligned}
+            \)
+    }
+    \end{frame}
+
+\section{Tester}
+\begin{frame}
+    \frametitle{Tester}
+    \begin{itemize}[<+->]
+        \item The previous two characterizations result in the following tester:
+        \begin{enumerate}[<+->]
+            \item Sample uniformly \(\bar{x},\bar{h}\in \fcal^m\).
+            \item Query \(f\) at \(\bar{x}, \bar{x}+\bar{h},\ldots,\bar{x}+\of{d+1}\bar{h}\).
+            \item Accept if and only if \[
+                \sum_{i=0}^{d+1}\alpha_i\cdot f\of{\bar{x}+i\bar{h}} = 0
+            \]
+        \end{enumerate}
+        \item We now move to the analysis of this tester.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Analysis - Main Theorem}
+         \begin{theorem}
+        Let \(\delta_0=1/\of{d+2}^2\). Then, our tester is a (one sided-error) POT with detection probability \(\min\of{\delta,\delta_0}/2\), where \(\delta\) denotes the distance of the given function from \(\pcal_{m,d}\)
+    \end{theorem}
+\end{frame}
+
+
+\begin{frame}
+    \frametitle{Main Theorem - Approach}
+    \begin{itemize}[<+->]
+        \item From previous characterizations if \(f\in \pcal_{m,d}\) we accept with probability 1.
+        \item The approach to prove soundness is similar to the BLR theorem.
+        \item We will show the if the tester rejects with probability \(\rho<\delta_0/2\) then \(f\), the input, is \(2\rho\)-close to \(\pcal_{m,d}\).
+        \item This will be done by ``correcting'' \(f\) on at most \(2\rho\cdot \abs{\fcal}^m\) values into a low-degree polynomial.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Correcting \(f\)}
+    \begin{itemize}[<+->]
+        \item The way \(f\) is corrected at point \(f\of{\bar{x}}\) into a low degree polynomial is according to the most frequent value of:
+        \[
+            \cbraces{\sum_{i\in[d+1]}\alpha_i\cdot f\of{\bar{x}+i\bar{h}}}_{\bar{h}\in \fcal^m}
+        \]
+        \item It remains to show that this ``corrected'' function is a low degree polynomial.
+        \item And that this function is \(2\rho\)-close to \(f\).
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Simplified Version}
+    \begin{itemize}[<+->]
+        \item Imagine as if \(f\) is obtained by taking a degree \(\leq d\) polynomial \(p\) and ``corrupting'' it on less than \(\abs{\fcal}^m/2\of{d+1}\) points.
+        \item What happens when \(f\) is fed to our tester?
+        \item Case 1: \(\rho\geq\delta\), then we have a rejection probability proprtional to the distance.
+    \end{itemize}
+\end{frame}
+\begin{frame}
+    \frametitle{Simplified Version}
+        \begin{itemize}[<+->]
+        \item Case 2: \(\rho<\delta\) then the probability of \(\sum_{i\in[d+1]}\alpha_if\of{\bar{x}+i\bar{h}}=\sum_{i\in [d+1]}\alpha_ip\of{\bar{x}+i\bar{h}}\) is at least \(1-(d+1)\cdot\rho>1/2\), from union bound.
+        \item Since the probability is greather than \(1/2\), then this is the most common value for \(f\), which means this is the value of the ``corrected'' \(f\).
+        \item Since \(p\of{\bar{x}}\) is a polynomial of degree \(\leq d\), the right-hand-side equals \(p\of{\bar{x}}\).
+        \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Back to Reality}
+
+    \begin{itemize}[<+->]
+        \item We can't assume that \(f\) is constructed that way.
+        \item Instead, \(f\) satisfies:
+        \[
+            \ppr{\bar{x},\bar{h}\in \fcal^m}{\overbrace{\sum_{i=0}^{d+1}\alpha_i \cdot f\of{\bar{x}+i\bar{h}}=0}^{\triangle}} = 1-\rho
+        \]
+        \item For \(\rho<\delta_0/2 = 1/2\of{d+2}^2\).
+        \item \(\triangle \iff f\of{\bar{x}}=\sum_{i\in [d+1]}\alpha_i\cdot f\of{\bar{x}+i\bar{h}}\)
+    \end{itemize}
+\end{frame}
+\begin{frame}
+    \frametitle{The Corrected Function}
+    \begin{itemize}[<+->]
+        \item Let \(S\) be a set.
+        \item Let \(\mfo_{e\in S}\cbraces{v\of{e}}\) be the \emph{most frequently occuring} value of \(v\of{e}\), ties are broken arbitrarily.
+        \item From a function \(f\) we construct a ``corrected'' function \(g\) as:
+        \[
+            g\of{\bar{x}} \overset{\text{def}}{=}\mfo_{\bar{h}\in\fcal^m}\cbraces{\sum_{i=1}^{d+1}\alpha_i\cdot f\of{\bar{x}+i\bar{h}}}
+        \]
+        \item From the assumption on \(f\), we get that \(g\of{\bar{x}}=f\of{\bar{x}}\) with good probability on a random \(\bar{x}\).
+        \end{itemize}
+\end{frame}
+\begin{frame}
+    \frametitle{Claims about \(g\)}
+    \begin{itemize}[<+->]
+        \item We'll prove the following claims on \(g\):
+        \item Closeness: \(g\) is \(2\rho\)-close to \(f\).
+        \item Strong Majority: 
+        \[
+            \forall \bar{x}\in \fcal^m: \ppr{\bar{h}\in\fcal^m}{g\of{\bar{x}}=\sum_{i=1}^{d+1}\alpha_i \cdot f\of{\bar{x}+i\bar{h}}} \geq 1-2\of{d+1}\rho
+        \].
+        \item Low Degree: \(g\in \pcal_{m,d}\).
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Closeness}
+    \begin{theorem}
+        The function \(g\) is \(2\rho\)-close to \(f\).
+    \end{theorem}
+    \begin{proof}
+    \begin{itemize}[<+->]
+        \item A point \(\bar{x}\) is \alert{bad} if \(g\of{\bar{x}}=\sum_{i=1}^{d+1}\alpha_i\cdot f\of{\bar{x}+i\bar{h}}\) for less than half of choices of \(\bar{h}\).
+        \item A good point satisfies \(f\of{\bar{x}}=g\of{\bar{x}}\).
+        \item Let \(B\) denote the set of all bad points.
+    \end{itemize}
+    \uncover<4->{
+        \[ \begin{aligned}
+            \rho &= \pr{\text{reject } f}\\
+            &\geq \pr{\text{reject } f \mid \bar{x}\in B}\cdot  \pr{\bar{x}\in B}  \\
+            &\geq \frac{1}{2} \cdot \pr{\bar{x} \in B}
+        \end{aligned}
+            \]
+    }
+        \pause{}
+        \begin{itemize}
+        \item \(\delta\of{f,g} = \ppr{\bar{x}\in\fcal^m}{f\of{\bar{x}} \neq g\of{\bar{x}}}\leq \pr{\bar{x} \in B} \leq 2\rho\).
+        \end{itemize}
+    \end{proof}
+\end{frame}
+\begin{frame}
+    \frametitle{Strong Majority}
+
+    \begin{theorem}
+            \(\forall \bar{x}\in \fcal^m: \ppr{\bar{h}\in\fcal^m}{g\of{\bar{x}}=\sum_{i=1}^{d+1}\alpha_i \cdot f\of{\bar{x}+i\bar{h}}} \geq 1-2\of{d+1}\rho\)
+    \end{theorem}
+    \begin{proof}
+        
+    \only<1>{
+        \begin{itemize}
+            \item Let \(Z_{\bar{x}}=\sum_{i=1}^{d+1}\alpha_i\cdot f\of{\bar{x}+i\bar{h}}\) be a random variable where \(\bar{h}\in \fcal^m\) is chosen uniformly at random.
+            \item The rejection probability is \(\rho\).
+            \item Therefore: \(\ppr{\bar{x}\in \fcal^m}{f\of{\bar{x}}=Z_{\bar{x}}}=1-\rho\)
+            \item This means that for a \alert{typical} \(\bar{x}\) we have \(Z_{\bar{x}}=f\of{\bar{x}}\) with high probability.
+            \item Therefore, \(Z_{\bar{x}}=g\of{\bar{x}}\) for such \(\bar{x}\)'s as well W.H.P.
+        \end{itemize}
+    }
+    \only<2>{
+        \begin{itemize}
+            \item However, we want to prove this claim for \alert{any} \(\bar{x}\).
+            \item Therefore, we have to show that for \alert{all} \(\bar{x}\) the most common value of \(Z_{\bar{x}}\) is \textbf{very} common.
+            \item From now on, fix some \(\bar{x}\in\fcal^m\)
+        \end{itemize}
+    }
+
+    \only<3>{
+\begin{itemize}
+            \item We will use the property that \emph{the probability for the most common value to appear is lower bound by the collision probability}.
+            \item Let \(S\) be a set and \(\mfo_S\) be the most frequent occuring value in \(S\).
+            \item \(\overbrace{\ppr{u,v \in S}{u=v}}^{\text{collision probability}} = \sum_{v \in S}\ppr{u \in S}{u=v}^2 \leq \overbrace{\sum_{v\in S}\ppr{u\in S}{u=v}}^{\text{sum = 1}}\ppr{u\in S}{u=\mfo_S}=\ppr{u\in S}{u=\mfo_S}\)
+            \item In our context \(S=\cbraces{\sum_{i=1}^{d+1}\alpha_i \cdot f\of{\bar{x}+i\bar{h}}\mid \bar{h}\in \fcal^m}\) and \(\mfo_S = g\of{\bar{x}}\).
+\end{itemize}
+    }
+    \only<4>{
+        \begin{itemize}
+            \item So, to lower bound \(\pr{g\of{\bar{x}}= Z_{\bar{x}}}\) we will give a lower bound on the collision probability of \(Z_{\bar{x}}\) which is:
+            \item \ppr{\bar{h}_1,\bar{h}_2\in\fcal^m}{\sum_{i=1}^{d+1}\alpha_i\cdot f\of{\bar{x}+i\bar{h}_1}=\sum_{j=1}^{d+1}\alpha_j \cdot f\of{\bar{x}+i\bar{h}_2}}
+        \end{itemize}
+    }
+    \only<5>{
+        \begin{itemize}
+            \item Since \(\bar{h}_1,\bar{h_2}\) are random, then \(\bar{x}+i\bar{h}_1\) is also random and so is \(\bar{x}+j\bar{h}_2\).
+            \item Therefore, we can apply our assumption (on \(\rho\) being the rej. prob. of \(f\)) on random line starting at random point in random direction.
+            \item The random points will be \(\bar{x}+i\bar{h}_1\) for \(i\in [d+1]\) with direction \(\bar{h}_2\) and points \(\bar{x}+j\bar{h}_2\) with direction \(\bar{h}_1\).
+            \item These lines intersect at points \(\bar{x}+i\bar{h}_1+j\bar{h}_2\), we will use these intersections soon.
+        \end{itemize}
+    }
+
+    \only<6>{
+        \begin{tikzpicture}
+
+  \begin{scope}[scale=.4,shift={(0,0)}]
+        \coordinate (Origin)   at (0,0);
+        \coordinate (XAxisMin) at (-5,0);
+        \coordinate (XAxisMax) at (5,0);
+        \coordinate (YAxisMin) at (0,-5);
+        \coordinate (YAxisMax) at (0,5);
+
+        \begin{scope}
+            \clip (-5,-5) rectangle (5,5); % Clips the picture...
+            \pgftransformcm{0.7}{0.7}{-0.7}{0.7}{\pgfpoint{0cm}{0cm}}
+
+            \foreach \x in {-15,...,15}
+            \foreach \y in {-15,...,15}
+            {
+                \node[shape=circle,fill=black!25,scale=0.35] (\x-\y) at (\x,\y){};
+            }
+        \end{scope}
+
+        \draw [dashed,thin, purple!55,->] (Origin) -- (5-0);
+        \draw [dashed,thin, purple!55,->] (Origin) -- (0-5);
+        \draw [dashed,thin, black!65] (3-0) -- (3-3);
+        \draw [dashed,thin, black!65] (0-3) -- (3-3);
+
+        \node[shape=circle,fill=purple,scale=0.35,label={[xshift=-0mm, yshift=-0mm]{\tiny \(\bar{x}+i\bar{h}_1+j\bar{h}_2\)}}] at (3-3){};
+
+        \node[shape=circle,fill=black,scale=0.35,label={[yshift=-5mm]{\tiny \(\bar{x}\)}}] at (0-0){};
+        \node[shape=circle,scale=0.35,label={[xshift=3mm,yshift=-3mm]{\tiny \(\bar{h}_1\)}}] at (5-0){};
+        \node[shape=circle,fill=black,scale=0.35,label={[xshift=3mm,yshift=-5mm]{\tiny \(\bar{x}+i\bar{h}_1\)}}] at (3-0){};
+        \node[shape=circle,,scale=0.35,label={[xshift=-3mm,yshift=-3mm]{\tiny \(\bar{h}_2\)}}] at (0-5){};
+        \node[shape=circle,fill=black,scale=0.35,label={[xshift=-3mm,yshift=-5mm]{\tiny \(\bar{x}+j\bar{h}_2\)}}] at (0-3){};
+
+    \end{scope}
+
+  \end{tikzpicture}
+    }
+
+    \only<7>{
+        \begin{itemize}
+            \item For random \(\bar{h}_1,\bar{h}_2\) we have \(\bar{x}+i\bar{h}_1\) and \(\bar{x}+j\bar{h}_2\) are random for every \(i,j\in [d+1]\). This implies:
+            \[
+                \begin{aligned}
+                   \forall i\in [d+1]: \ppr{\bar{h}_1,\bar{h}_2\in \fcal^m}{f\of{\bar{x}+i\bar{h}_1}=\sum_{j=1}^{d+1}\alpha_j\cdot f\of{\of{\bar{x}+i\bar{h}_1}+j\bar{h}_2}}=1-\rho \\
+                   \forall j\in [d+1]: \ppr{\bar{h}_1,\bar{h}_2\in \fcal^m}{f\of{\bar{x}+j\bar{h}_2}=\sum_{i=1}^{d+1}\alpha_i\cdot f\of{\of{\bar{x}+j\bar{h}_2}+i\bar{h}_1}}=1-\rho \\
+                \end{aligned}
+            \]
+
+        \end{itemize}
+    }
+    \only<8>{
+        \begin{itemize}
+            \item If we use a union bound over \(i\in [d+1]\) in the first eq. and over \(j\in [d+1]\) in the second one we get:
+            \[
+                \begin{aligned}
+                   \ppr{\bar{h}_1,\bar{h}_2\in \fcal^m}{\sum_{i=1}^{d+1}\alpha_i f\of{\bar{x}+i\bar{h}_1}=\sum_{i=1}^{d+1}\sum_{j=1}^{d+1}\alpha_i\alpha_j\cdot f\of{\bar{x}+i\bar{h}_1+j\bar{h}_2}}=1-\of{d+1}\cdot\rho \\
+                   \ppr{\bar{h}_1,\bar{h}_2\in \fcal^m}{\sum_{j=1}^{d+1}\alpha_j f\of{\bar{x}+j\bar{h}_2}=\sum_{j=1}^{d+1}\sum_{i=1}^{d+1}\alpha_j \alpha_i\cdot f\of{\bar{x}+i\bar{h}_1+j\bar{h}_2}}=1-\of{d+1}\cdot\rho \\
+                \end{aligned}
+            \]
+        \end{itemize}
+    }
+    \only<9>{
+        \begin{itemize}
+            \item Union bounding over the previous two equations together, we get:
+            \[
+                   \underbrace{\ppr{\bar{h}_1,\bar{h}_2\in \fcal^m}{\overbrace{\sum_{i=1}^{d+1}\alpha_i f\of{\bar{x}+i\bar{h}_1}}^{\text{sample from }Z_{\bar{x}}}=\overbrace{\sum_{j=1}^{d+1}\alpha_j f\of{\bar{x}+j\bar{h}_2}}^{\text{sample from }Z_{\bar{x}}}}}_{\text{collision probability of }Z_{\bar{x}}}=1-2\of{d+1}\cdot\rho
+            \]
+        \end{itemize}
+    }
+    \only<10>{
+        \begin{itemize}
+            \item We have given a lower bound on the collision probability of \(Z_{\bar{x}}\).
+            \item This is a lower bound on \(\ppr{\bar{h}\in\fcal^m}{g\of{\bar{x}}=\overbrace{\sum_{i=1}^{d+1}\alpha_i\cdot f\of{\bar{x}+i\bar{h}}}^{=\text{sample from }Z_{\bar{x}}}}\)
+            \item Finally, QED.
+        \end{itemize}
+    }
+    \end{proof}
+\end{frame}
+\begin{frame}
+    \frametitle{Low Degree}
+    \begin{theorem}
+        \(g\in \pcal_{m,d}\).
+    \end{theorem}
+    \begin{proof}
+        \only<1>{
+        \begin{itemize}
+            \item \(g\) is low degree \(\iff\) for all \(\bar{x},\bar{h}\in \fcal^m\): \(\sum_{i=0}^{d+1}\alpha_i\cdot g\of{\bar{x}+i\bar{h}}=0\).
+            \item Fix \(\bar{x},\bar{h}\) for the rest of the proof.
+        \end{itemize}
+        }
+        \only<2>{
+            \begin{itemize}
+                \item Let \(\bar{h}_1,\bar{h}_2\) be uniform and independently chosen from \(\fcal^m\).
+                \item Therefore, for every \(i\in [d+1]\) \(\bar{h}_1+i\bar{h}_2\) is uniform in \(\fcal^m\) and from ``Strong Majority'' lemma:
+                \[
+                    \ppr{\bar{h}_1,\bar{h}_2\in\fcal^m}{g\of{\bar{x}+i\bar{h}}=\sum_{j=1}^{d+1}\alpha_j\cdot f\of{\of{\bar{x}+i\bar{h}}+j\of{\bar{h}_1+i\bar{h}_2}}}\geq 1-2\of{d+1}\rho
+                \]
+            \end{itemize}
+        }
+        \only<3>{
+            \begin{itemize}
+                \item Also, for all \(j\in [d+1]\) both \(\bar{x}+j\bar{h}_1\) and \(\bar{h}+j\bar{h}_2\) are uniformly distributed in \(\fcal^m\).
+                \item Therefore, from \(\rho\) being the rejection probability of the tester for \(f\) we get:
+                \[
+                    \ppr{\bar{h}_1,\bar{h}_2\in\fcal^m}{\sum_{i=0}^{d+1}\alpha_i f\of{\of{\bar{x}+j\bar{h}_1}+i\of{\bar{h}+j\bar{h}_2}}=0} = 1 - \rho
+                \]
+            \end{itemize}
+        }
+        \only<4>{
+            \begin{itemize}
+                \item By adding up the above equations for all \(j\in [d+1]\) and rephrasing the agument to \(f\), we get:
+                \[
+                    \ppr{\bar{h}_1,\bar{h}_2\in\fcal^m}{\sum_{j=1}^{d+1}\alpha_j \sum_{i=0}^{d+1}\alpha_i f\of{\of{\bar{x}+i\bar{h}}+j\of{\bar{h}_1+i\bar{h}_2}}=0} = 1 - \of{d+1}\rho
+                \]
+                \item Overall, from union bounding, we get...
+            \end{itemize}
+        }
+        \only<5>{
+            \[
+                \begin{aligned}
+                   &\ppr{\bar{h}_1,\bar{h}_2\in\fcal^m}{\sum_{i=0}^{d+1}\alpha_i g\of{\bar{x}+i\bar{h}}=\sum_{i=0}^{d+1}\alpha_i \sum_{j=1}^{d+1}\alpha_j f\of{\of{\bar{x}+i\bar{h}}+j\of{\bar{h}_1+i\bar{h}_2}}=0}  \\
+                    \geq & 1-\of{d+2}\cdot 2\of{d+1}\rho - \of{d+1}\cdot \rho \\
+                    = & 1-\of{2d +5}\of{d+1}\rho \\
+                    > & 0 \quad \texttt{//since } \rho\geq 1/2\of{d+2}^2
+                \end{aligned}
+            \]
+        }
+        \only<6>{
+            \begin{itemize}
+                \item There we get that:
+                \[
+                    \ppr{\bar{h}_1,\bar{h}_2\in \fcal^m}{\sum_{i=0}^{d+1}\alpha_i g\of{\bar{x}+i\bar{h}}=0} > 0
+                \]
+                \item Since the event is fixed (ind. of \(\bar{h}_1,\bar{h}_2\)), the probability is therefore 1.
+            \end{itemize}
+        }
+    \end{proof}
+
+    
+
+\end{frame}
+    \begin{frame}
+        \frametitle{Recap}
+    \begin{itemize}
+        \item We have shown that \(f\) is \(2\rho\)-far from \(g\) if the detection probability is below some constant threshold.
+        \item We have shown that \(g\) in that case is a low degree polynomial.
+        \item The tester doesn't depend on the distance.
+        \item The tester always accepts low degree polynomials.
+        \item Therefore: We have a one-sided error POT for low degree polynomials.
+    \end{itemize}
+\end{frame}
+\begin{frame}
+    \frametitle{Fin.}
+
+    \Large Thank you!
+    
+
+\end{frame}
+
+\end{document}
